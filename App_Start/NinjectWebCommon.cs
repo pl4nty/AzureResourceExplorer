@@ -1,8 +1,5 @@
 using ARMExplorer.Controllers;
 
-[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(ARMExplorer.App_Start.NinjectWebCommon), "Start")]
-[assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(ARMExplorer.App_Start.NinjectWebCommon), "Stop")]
-
 namespace ARMExplorer.App_Start
 {
     using System;
@@ -20,10 +17,8 @@ namespace ARMExplorer.App_Start
         /// <summary>
         /// Starts the application
         /// </summary>
-        public static void Start() 
+        public static void Main() 
         {
-            DynamicModuleUtility.RegisterModule(typeof(OnePerRequestHttpModule));
-            DynamicModuleUtility.RegisterModule(typeof(NinjectHttpModule));
             bootstrapper.Initialize(CreateKernel);
         }
         
@@ -45,10 +40,8 @@ namespace ARMExplorer.App_Start
             try
             {
                 kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
-                kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
 
                 RegisterServices(kernel);
-                GlobalConfiguration.Configuration.DependencyResolver = new Ninject.Web.WebApi.NinjectDependencyResolver(kernel);
                 return kernel;
             }
             catch

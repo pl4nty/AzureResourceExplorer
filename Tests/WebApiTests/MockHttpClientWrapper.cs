@@ -5,12 +5,13 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ARMExplorer.Controllers;
+using Microsoft.AspNetCore.Http;
 
 namespace Tests.WebApiTests
 {
     class MockHttpClientWrapper : IHttpClientWrapper
     {
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage requestMessage, HttpRequestMessage sendRequest)
+        public Task<HttpResponseMessage> SendAsync(HttpRequest requestMessage, HttpRequestMessage sendRequest)
         {
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             string filePath;
@@ -28,7 +29,7 @@ namespace Tests.WebApiTests
             return response.Task;
         }
 
-        public Task<HttpResponseMessage> ExecuteAsync(HttpRequestMessage requestMessage, HttpRequestMessage executeRequest)
+        public Task<HttpResponseMessage> ExecuteAsync(HttpRequest requestMessage, HttpRequestMessage executeRequest)
         {
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             string filePath;

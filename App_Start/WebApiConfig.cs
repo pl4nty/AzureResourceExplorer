@@ -1,21 +1,59 @@
-﻿using System.Web.Routing;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ARMExplorer.App_Start
 {
     public class WebApiConfig
     {
-        public static void Register(HttpConfiguration config)
+        public static void RegisterServices(IServiceCollection services)
         {
-            config.Routes.MapHttpRoute("get-operations-for-user-post", "api/all-operations", new { controller = "Operation", action = "GetPost" }, new { verb = new HttpMethodConstraint("POST") });
-            config.Routes.MapHttpRoute("get-providers-for-subscription", "api/operations/providers/{subscriptionId}", new { controller = "Operation", action = "GetProviders" }, new { verb = new HttpMethodConstraint("GET", "HEAD") });
-            config.Routes.MapHttpRoute("invoke-operation", "api/operations", new { controller = "Operation", action = "Invoke" }, new { verb = new HttpMethodConstraint("POST") });
-            config.Routes.MapHttpRoute("get-providers-for-user", "api/providers",new {controller = "Operation", action = "GetAllProviders" }, new {verb = new HttpMethodConstraint("GET", "HEAD")});
+            services.AddControllers();
+        }
 
-            config.Routes.MapHttpRoute("get-token", "api/token", new { controller = "ARM", action = "GetToken" }, new { verb = new HttpMethodConstraint("GET", "HEAD") });
-            config.Routes.MapHttpRoute("get-search", "api/search", new { controller = "ARM", action = "Search" }, new { verb = new HttpMethodConstraint("GET", "HEAD") });
-            config.Routes.MapHttpRoute("get", "api/{*path}", new { controller = "ARM", action = "Get" }, new { verb = new HttpMethodConstraint("GET", "HEAD") });
+        public static void RegisterRoutes(IEndpointRouteBuilder endpoints)
+        {
+            endpoints.MapControllerRoute(
+                name: "get-operations-for-user-post",
+                pattern: "api/all-operations",
+                defaults: new { controller = "Operation", action = "GetPost" }
+            ).WithMetadata(new HttpMethodMetadata(new[] { "POST" }));
 
-            GlobalConfiguration.Configuration.Formatters.XmlFormatter.SupportedMediaTypes.Clear();
+            endpoints.MapControllerRoute(
+                name: "get-providers-for-subscription",
+                pattern: "api/operations/providers/{subscriptionId}",
+                defaults: new { controller = "Operation", action = "GetProviders" }
+            ).WithMetadata(new HttpMethodMetadata(new[] { "GET", "HEAD" }));
+
+            endpoints.MapControllerRoute(
+                name: "invoke-operation",
+                pattern: "api/operations",
+                defaults: new { controller = "Operation", action = "Invoke" }
+            ).WithMetadata(new HttpMethodMetadata(new[] { "POST" }));
+
+            endpoints.MapControllerRoute(
+                name: "get-providers-for-user",
+                pattern: "api/providers",
+                defaults: new { controller = "Operation", action = "GetAllProviders" }
+            ).WithMetadata(new HttpMethodMetadata(new[] { "GET", "HEAD" }));
+
+            endpoints.MapControllerRoute(
+                name: "get-token",
+                pattern: "api/token",
+                defaults: new { controller = "ARM", action = "GetToken" }
+            ).WithMetadata(new HttpMethodMetadata(new[] { "GET", "HEAD" }));
+
+            endpoints.MapControllerRoute(
+                name: "get-search",
+                pattern: "api/search",
+                defaults: new { controller = "ARM", action = "Search" }
+            ).WithMetadata(new HttpMethodMetadata(new[] { "GET", "HEAD" }));
+
+            endpoints.MapControllerRoute(
+                name: "get",
+                pattern: "api/{*path}",
+                defaults: new { controller = "ARM", action = "Get" }
+            ).WithMetadata(new HttpMethodMetadata(new[] { "GET", "HEAD" }));
         }
     }
 }

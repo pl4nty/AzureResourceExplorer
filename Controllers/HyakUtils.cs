@@ -28,7 +28,7 @@ namespace ARMExplorer.Controllers
 
         private static IEnumerable<MetadataObject> GetRemoteCsmOperations()
         {
-            var providersInfo = HostingEnvironment.MapPath("~/App_Data/ProvidersSpecs/ProvidersList.json");
+            var providersInfo = Path.Combine(Directory.GetCurrentDirectory(), "App_Data", "ProvidersSpecs", "ProvidersList.json");
             if (providersInfo == null)
             {
                 return new List<MetadataObject>();

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ARMExplorer.Model;
+using Microsoft.AspNetCore.Http;
 
 namespace ARMExplorer.Controllers
 {
@@ -18,7 +19,7 @@ namespace ARMExplorer.Controllers
             _clientWrapper = clientWrapper;
         }
 
-        public async Task<IList<string>> GetSubscriptionIdsAsync(HttpRequestMessage requestMessage)
+        public async Task<IList<string>> GetSubscriptionIdsAsync(HttpRequest requestMessage)
         {
             var initialGetResourcesUrl = string.Format(Utils.AllSubscriptionsTemplate, HyakUtils.CSMUrl, Utils.CSMApiVersion);
             var resources = await GetResources(requestMessage, initialGetResourcesUrl);
@@ -39,7 +40,7 @@ namespace ARMExplorer.Controllers
             return updatedCount > initalCount;
         }
 
-        private async Task<HashSet<ArmResource>> GetResources(HttpRequestMessage requestMessage, string getResourcesUrl)
+        private async Task<HashSet<ArmResource>> GetResources(HttpRequest requestMessage, string getResourcesUrl)
         {
             var allResources = new HashSet<ArmResource>();
             var currentNextLinkDepth = 0;
@@ -74,7 +75,7 @@ namespace ARMExplorer.Controllers
             return allResources;
         }
 
-        public async Task<HashSet<string>> GetProviderNamesFor(HttpRequestMessage requestMessage, string subscriptionId)
+        public async Task<HashSet<string>> GetProviderNamesFor(HttpRequest requestMessage, string subscriptionId)
         {
             var initialGetResourcesUrl = string.Format(Utils.ResourcesTemplate, HyakUtils.CSMUrl, subscriptionId, Utils.CSMApiVersion);
             var resources = await GetResources(requestMessage, initialGetResourcesUrl);
@@ -93,7 +94,7 @@ namespace ARMExplorer.Controllers
             return uniqueProviders;
         }
 
-        public async Task<Dictionary<string, Dictionary<string, HashSet<string>>>> GetProvidersFor(HttpRequestMessage requestMessage, string subscriptionId)
+        public async Task<Dictionary<string, Dictionary<string, HashSet<string>>>> GetProvidersFor(HttpRequest requestMessage, string subscriptionId)
         {
             var initialGetResourcesUrl = string.Format(Utils.ResourcesTemplate, HyakUtils.CSMUrl, subscriptionId, Utils.CSMApiVersion);
             var resources = await GetResources(requestMessage, initialGetResourcesUrl);
@@ -146,12 +147,12 @@ namespace ARMExplorer.Controllers
             return result;
         }
 
-        public async Task<HttpResponseMessage> InvokeAsync(HttpRequestMessage requestMessage, HttpRequestMessage executeRequest)
+        public async Task<HttpResponseMessage> InvokeAsync(HttpRequest requestMessage, HttpRequestMessage executeRequest)
         {
             return await _clientWrapper.ExecuteAsync(requestMessage, executeRequest);
         }
 
-        private async Task<HttpResponseMessage> GetAsync(HttpRequestMessage requestMessage, string url)
+        private async Task<HttpResponseMessage> GetAsync(HttpRequest requestMessage, string url)
         {
             var sendRequest = new HttpRequestMessage(HttpMethod.Get, url);
             return await _clientWrapper.ExecuteAsync(requestMessage, sendRequest);

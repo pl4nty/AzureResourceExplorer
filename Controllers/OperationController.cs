@@ -15,6 +15,7 @@ using ARMExplorer.SwaggerParser;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace ARMExplorer.Controllers
 {
@@ -60,7 +61,7 @@ namespace ARMExplorer.Controllers
             return swaggerSpec;
         }
 
-        private async Task<HashSet<string>> GetProviderNamesFor(HttpRequestMessage requestMessage, string subscriptionId)
+        private async Task<HashSet<string>> GetProviderNamesFor(HttpRequest requestMessage, string subscriptionId)
         {
             try
             {
@@ -96,10 +97,10 @@ namespace ARMExplorer.Controllers
         }
 
         [Authorize]
-        public async Task<HttpResponseMessage> GetAllProviders()
+        public async Task<ActionResult> GetAllProviders()
         {
             var watch = Stopwatch.StartNew();
-            HyakUtils.CSMUrl = HyakUtils.CSMUrl ?? Utils.GetCSMUrl(Request.RequestUri.Host);
+            HyakUtils.CSMUrl = HyakUtils.CSMUrl ?? Utils.GetCSMUrl(Request.Host.Value);
 
             IEnumerable<string> allProviders;
 
@@ -116,8 +117,7 @@ namespace ARMExplorer.Controllers
 
             watch.Stop();
 
-            var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK, allProviders);
-            httpResponseMessage.Headers.Add("TimeElapsedMs", watch.ElapsedMilliseconds.ToString());
+            var httpResponseMessage = Ok(allProviders);
             return httpResponseMessage;
         }
 
@@ -125,9 +125,9 @@ namespace ARMExplorer.Controllers
         [HttpPost]
         public HttpResponseMessage GetPost([FromBody] List<string> providersList)
         {
-            HyakUtils.CSMUrl = HyakUtils.CSMUrl ?? Utils.GetCSMUrl(Request.RequestUri.Host);
+            HyakUtils.CSMUrl = HyakUtils.CSMUrl ?? Utils.GetCSMUrl(Request.Host.Value);
 
-            var response = Request.CreateResponse(HttpStatusCode.NoContent);
+            var response = new HttpResponseMessage(HttpStatusCode.NoContent);
 
             if (providersList != null)
             {
@@ -137,7 +137,7 @@ namespace ARMExplorer.Controllers
                 var metadataObjects = HyakUtils.GetSpeclessCsmOperations().Concat(swaggerSpecs);
                 watch.Stop();
 
-                response = Request.CreateResponse(HttpStatusCode.OK);
+                response = new HttpResponseMessage(HttpStatusCode.OK);
                 response.Content = new StringContent(JsonConvert.SerializeObject(metadataObjects), Encoding.UTF8, "application/json");
                 response.Headers.Add(Utils.X_MS_Ellapsed, watch.ElapsedMilliseconds + "ms");
             }
@@ -148,8 +148,10 @@ namespace ARMExplorer.Controllers
         [Authorize]
         public async Task<HttpResponseMessage> GetProviders(string subscriptionId)
         {
-            HyakUtils.CSMUrl = HyakUtils.CSMUrl ?? Utils.GetCSMUrl(Request.RequestUri.Host);
-            return Request.CreateResponse(HttpStatusCode.OK, await _armRepository.GetProvidersFor(Request, subscriptionId));
+            HyakUtils.CSMUrl = HyakUtils.CSMUrl ?? Utils.GetCSMUrl(Request.Host.Value);
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Content = new StringContent(JsonConvert.SerializeObject(await _armRepository.GetProvidersFor(Request, subscriptionId)), Encoding.UTF8, "application/json");
+            return response;
         }
 
         [Authorize]
@@ -157,16 +159,20 @@ namespace ARMExplorer.Controllers
         {
             if (!IsValidHost())
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid request domain");
+                var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent("Invalid request domain");
+                return response;
             }
 
-            if (info.TryFixUrl(Request.RequestUri.Host) && info.IsValidHost())
+            if (info.TryFixUrl(Request.Host.Value) && info.IsValidHost())
             {
                 // request url is ok.
             }
             else
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid request url");
+                var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent("Invalid request url");
+                return response;
             }
 
             var executeRequest = new HttpRequestMessage(new HttpMethod(info.HttpMethod), info.Url + (info.Url.IndexOf("?api-version=", StringComparison.Ordinal) != -1 ? string.Empty : "?api-version=" + info.ApiVersion) + (string.IsNullOrEmpty(info.QueryString) ? string.Empty : info.QueryString));
@@ -178,19 +184,17 @@ namespace ARMExplorer.Controllers
             return await _armRepository.InvokeAsync(Request, executeRequest);
         }
 
-        private static bool IsValidHost()
+        private bool IsValidHost()
         {
-            if (HttpContext.Current.Request.Url.IsLoopback)
+            if (Request.AsSystemWeb().Url.IsLoopback)
             {
                 return true;
             }
 
             // For Azure scenarios we do extra checks for cross domains
-            var currentRequest = HttpContext.Current.Request;
-
-            if (!string.IsNullOrEmpty(HttpContext.Current.Request.ServerVariables["HTTP_REFERER"]))
+            if (!string.IsNullOrEmpty(Request.AsSystemWeb().ServerVariables["HTTP_REFERER"]))
             {
-                var requestHost = currentRequest.UrlReferrer?.Host;
+                var requestHost = Request.AsSystemWeb().UrlReferrer?.Host;
                 if (requestHost != null)
                 {
                     return requestHost.EndsWith(".azure.com", StringComparison.OrdinalIgnoreCase);
@@ -198,7 +202,7 @@ namespace ARMExplorer.Controllers
             }
 
             // If referrer is not set check origin headers.
-            var originHeader = currentRequest.Headers.GetValues("Origin")?.FirstOrDefault();
+            var originHeader = Request.Headers.Origin.FirstOrDefault();
             if (originHeader != null)
             {
                 var originHost = new Uri(originHeader, UriKind.Absolute).Host;

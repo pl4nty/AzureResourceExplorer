@@ -9,7 +9,7 @@ namespace ARMExplorer.Controllers
 {
     public static class ProviderNamesRepository
     {
-        private static readonly string AppData = HostingEnvironment.MapPath("~/App_Data");
+        private static readonly string AppData = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
         private static readonly string _providerNamesFileName = "providernames.txt";
 
         private static readonly List<string> AllProviderNames = new List<string>();

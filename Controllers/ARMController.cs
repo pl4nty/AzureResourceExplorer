@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.SystemWebAdapters;
 
 namespace ARMExplorer.Controllers
 {
@@ -26,14 +28,14 @@ namespace ARMExplorer.Controllers
         {
             if (plainText)
             {
-                var jwtToken = Request.Headers.GetValues(Utils.X_MS_OAUTH_TOKEN).FirstOrDefault();
-                var response = Request.CreateResponse(HttpStatusCode.OK);
+                var jwtToken = Request.AsSystemWeb().Headers.GetValues(Utils.X_MS_OAUTH_TOKEN).FirstOrDefault();
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
                 response.Content = new StringContent(jwtToken, Encoding.UTF8, "text/plain");
                 return response;
             }
             else
             {
-                var response = Request.CreateResponse(HttpStatusCode.OK);
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
                 response.Content = new StringContent(GetClaims().ToString(), Encoding.UTF8, "application/json");
                 return response;
             }
@@ -42,12 +44,11 @@ namespace ARMExplorer.Controllers
         [Authorize]
         public async Task<HttpResponseMessage> Get()
         {
-            IHttpRouteData routeData = Request.GetRouteData();
-            string path = routeData.Values["path"] as string;
+            var path = RouteData.Values["path"] as string;
             if (String.IsNullOrEmpty(path))
             {
-                var response = Request.CreateResponse(HttpStatusCode.Redirect);
-                response.Headers.Location = new Uri(Path.Combine(Request.RequestUri.AbsoluteUri, "subscriptions"));
+                var response = new HttpResponseMessage(HttpStatusCode.Redirect);
+                response.Headers.Location = new Uri(Path.Combine(Request.GetEncodedUrl(), "subscriptions"));
                 return response;
             }
 
@@ -56,7 +57,7 @@ namespace ARMExplorer.Controllers
                 return await GetTenants(path);
             }
 
-            using (var client = GetClient(Utils.GetCSMUrl(Request.RequestUri.Host)))
+            using (var client = GetClient(Utils.GetCSMUrl(Request.Host.Value)))
             {
                 var apiVersion = Utils.GetApiVersion(path);
                 return await Utils.Execute(client.GetAsync(path + "?api-version=" + apiVersion));
@@ -67,7 +68,7 @@ namespace ARMExplorer.Controllers
         [HttpGet]
         public async Task<List<JObject>> Search(string keyword)
         {
-            var armBaseUri = Utils.GetCSMUrl(Request.RequestUri.Host);
+            var armBaseUri = Utils.GetCSMUrl(Request.Host.Value);
             using (var client = GetClient(armBaseUri))
             {
                 HttpResponseMessage subscriptionResponse = await client.GetAsync(string.Format(CultureInfo.InvariantCulture, "/subscriptions?api-version={0}", Utils.CSMApiVersion));
@@ -129,9 +130,9 @@ namespace ARMExplorer.Controllers
             var parts = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length == 1)
             {
-                if (!Request.RequestUri.IsLoopback)
+                if (!HttpContext.Request.Host.Value.Contains("localhost"))
                 {
-                    using (var client = GetClient(Request.RequestUri.GetLeftPart(UriPartial.Authority)))
+                    using (var client = GetClient($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}"))
                     {
                         var response = await Utils.Execute(client.GetAsync("tenantdetails"));
                         if (!response.IsSuccessStatusCode)
@@ -149,7 +150,7 @@ namespace ARMExplorer.Controllers
                 }
                 else
                 {
-                    using (var client = GetClient(Utils.GetCSMUrl(Request.RequestUri.Host)))
+                    using (var client = GetClient(Utils.GetCSMUrl(Request.Host.Value)))
                     {
                         var apiVersion = Utils.GetApiVersion(path);
                         var response = await Utils.Execute(client.GetAsync(path + "?api-version=" + apiVersion));
@@ -172,10 +173,10 @@ namespace ARMExplorer.Controllers
                 // switch tenant
                 var tenantId = Guid.Parse(parts[1]);
                 //KeyValuePair is a struct not a class. It can't be null.
-                var contextQuery = Request.GetQueryNameValuePairs().FirstOrDefault(s => s.Key.Equals("cx", StringComparison.OrdinalIgnoreCase)).Value ?? string.Empty;
-                var response = Request.CreateResponse(HttpStatusCode.Redirect);
+                var contextQuery = Request.Query["cx"].FirstOrDefault() ?? string.Empty;
+                var response = new HttpResponseMessage(HttpStatusCode.Redirect);
                 response.Headers.Add("Set-Cookie", String.Format("OAuthTenant={0}; path=/; secure; HttpOnly", tenantId));
-                var uri = Request.RequestUri.AbsoluteUri;
+                var uri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}{HttpContext.Request.QueryString}";
                 var baseUri = new Uri(uri.Substring(0, uri.IndexOf("/api/" + parts[0], StringComparison.OrdinalIgnoreCase)));
                 response.Headers.Location = new Uri(baseUri, WebUtility.UrlDecode(contextQuery));
                 return response;
@@ -184,7 +185,7 @@ namespace ARMExplorer.Controllers
 
         private JObject GetClaims()
         {
-            var jwtToken = Request.Headers.GetValues(Utils.X_MS_OAUTH_TOKEN).FirstOrDefault();
+            var jwtToken = Request.AsSystemWeb().Headers.GetValues(Utils.X_MS_OAUTH_TOKEN).FirstOrDefault();
             var base64 = jwtToken.Split('.')[1];
 
             // fixup
@@ -219,7 +220,7 @@ namespace ARMExplorer.Controllers
         private HttpResponseMessage Transfer(HttpResponseMessage response)
         {
             var ellapsed = response.Headers.GetValues(Utils.X_MS_Ellapsed).First();
-            response = Request.CreateResponse(response.StatusCode);
+            response = new HttpResponseMessage(response.StatusCode);
             response.Headers.Add(Utils.X_MS_Ellapsed, ellapsed);
             return response;
         }
@@ -239,8 +240,8 @@ namespace ARMExplorer.Controllers
             var client = new HttpClient();
             client.BaseAddress = new Uri(baseUri);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
-                Request.Headers.GetValues(Utils.X_MS_OAUTH_TOKEN).FirstOrDefault());
-            client.DefaultRequestHeaders.Add("User-Agent", Request.RequestUri.Host);
+                Request.AsSystemWeb().Headers.GetValues(Utils.X_MS_OAUTH_TOKEN).FirstOrDefault());
+            client.DefaultRequestHeaders.Add("User-Agent", HttpContext.Request.Host.Value);
             return client;
         }
     }

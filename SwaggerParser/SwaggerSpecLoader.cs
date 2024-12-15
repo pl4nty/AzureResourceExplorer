@@ -8,7 +8,7 @@ namespace ARMExplorer.SwaggerParser
 {
     public class SwaggerSpecLoader
     {
-        private static readonly string SwaggerRoot = HostingEnvironment.MapPath("~/App_Data/SwaggerSpecs");
+        private static readonly string SwaggerRoot = Path.Combine(Directory.GetCurrentDirectory(), "App_Data", "SwaggerSpecs");
         private static IEnumerable<string> GetSwaggerFilesForProvider(string provider)
         {
             try
