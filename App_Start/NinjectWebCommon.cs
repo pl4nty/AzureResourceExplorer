@@ -1,64 +1,76 @@
+using System;
 using ARMExplorer.Controllers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 
 namespace ARMExplorer.App_Start
 {
-    using System;
-    using System.Web;
-
-    using Microsoft.Web.Infrastructure.DynamicModuleHelper;
-
-    using Ninject;
-    using Ninject.Web.Common;
-
-    public static class NinjectWebCommon 
+    public class Startup
     {
-        private static readonly Bootstrapper bootstrapper = new Bootstrapper();
+        public void ConfigureServices(IServiceCollection services)
+        {
+            // Add application services here
+            services.AddControllersWithViews();
+            WebApiConfig.RegisterServices(services);
+            // Configure authentication
+            services.AddAuthentication(BearerTokenDefaults.AuthenticationScheme)
+                .AddBearerToken();
+            // Add other services here
+        }
 
-        /// <summary>
-        /// Starts the application
-        /// </summary>
-        public static void Main() 
+        public void Configure(IApplicationBuilder app, IHostApplicationLifetime lifetime)
         {
-            bootstrapper.Initialize(CreateKernel);
-        }
-        
-        /// <summary>
-        /// Stops the application.
-        /// </summary>
-        public static void Stop()
-        {
-            bootstrapper.ShutDown();
-        }
-        
-        /// <summary>
-        /// Creates the kernel that will manage your application.
-        /// </summary>
-        /// <returns>The created kernel.</returns>
-        private static IKernel CreateKernel()
-        {
-            var kernel = new StandardKernel();
-            try
+            if (app == null)
             {
-                kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
+                throw new ArgumentNullException(nameof(app));
+            }
 
-                RegisterServices(kernel);
-                return kernel;
-            }
-            catch
+            if (lifetime == null)
             {
-                kernel.Dispose();
-                throw;
+                throw new ArgumentNullException(nameof(lifetime));
             }
+
+            app.UseRouting();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                WebApiConfig.RegisterRoutes(endpoints);
+            });
+
+            lifetime.ApplicationStarted.Register(OnStarted);
+            lifetime.ApplicationStopping.Register(OnStopping);
         }
 
-        /// <summary>
-        /// Load your modules or register your services here!
-        /// </summary>
-        /// <param name="kernel">The kernel.</param>
-        private static void RegisterServices(IKernel kernel)
+        private void OnStarted()
         {
-            kernel.Bind<IHttpClientWrapper>().To<HttpClientWrapper>();
-            kernel.Bind<IArmRepository>().To<ArmRepository>();
-        }        
+            // Code to run when the application starts
+        }
+
+        private void OnStopping()
+        {
+            // Code to run when the application stops
+        }
+    }
+
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<ARMExplorer.App_Start.Startup>();
+                });
     }
 }
