@@ -18,7 +18,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ARMExplorer.Controllers
 {
-    [UnhandledExceptionFilter]
     public class OperationController : ControllerBase
     {
         private readonly IArmRepository _armRepository;
