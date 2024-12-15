@@ -21,7 +21,7 @@
         scriptGenericResource();
 
         function scriptSubscriptions() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET"];
             resourceDefinition.apiVersion = "2014-04-01";
             resourceDefinition.children = "{name}";
@@ -45,7 +45,7 @@
         }
         
         function scriptSubscription() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET"];
             resourceDefinition.apiVersion = "2014-04-01";
             resourceDefinition.children = "{name}";
@@ -68,7 +68,7 @@
         }
 
         function scriptResourceGroups() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET", "CREATE"];
             resourceDefinition.apiVersion = "2014-04-01";
             resourceDefinition.children = "{name}";
@@ -93,16 +93,19 @@
         }
 
         function scriptResourceGroup() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET", "PUT", "DELETE"];
             resourceDefinition.apiVersion = "2014-04-01";
             resourceDefinition.children = ["exportTemplate", "moveResources", "providers", "validateMoveResources"];
 
-            let actions = [] as IAction[];
-            actions[0] = { httpMethod: "DELETE", name: "Delete", url: "https://management.azure.com/subscriptions/6e6e25b…-43f4-bdde-1864842e524b/resourceGroups/cloudsvcrg", query: undefined, requestBody: undefined };
-            actions[1] = { httpMethod: "POST", name: "exportTemplate", url: "https://management.azure.com/subscriptions/6e6e25b…842e524b/resourceGroups/cloudsvcrg/exportTemplate", query: undefined, requestBody: '{"options": "IncludeParameterDefaultValue, IncludeComments", "resources": ["* "]}' };
-            actions[2] = { httpMethod: "POST", name: "moveResources", url: "https://management.azure.com/subscriptions/6e6e25b…842e524b/resourceGroups/cloudsvcrg/moveResources", query: undefined, requestBody: '{"targetResourceGroup": "(string)","resources": ["(string)"]}' };
-            actions[3] = { httpMethod: "POST", name: "validateMoveResources", url: "https://management.azure.com/subscriptions/6e6e25b…842e524b/resourceGroups/cloudsvcrg/validateMoveResources", query: undefined, requestBody: '{"targetResourceGroup": "(string)","resources": ["(string)"]}' };
+            let actions = [] as Action[];
+            actions[0] = new Action("DELETE", "Delete", "https://management.azure.com/subscriptions/6e6e25b…-43f4-bdde-1864842e524b/resourceGroups/cloudsvcrg");
+            actions[1] = new Action("POST", "exportTemplate", "https://management.azure.com/subscriptions/6e6e25b…842e524b/resourceGroups/cloudsvcrg/exportTemplate");
+            actions[1].requestBody = '{"options": "IncludeParameterDefaultValue, IncludeComments", "resources": ["* "]}';
+            actions[2] = new Action("POST", "moveResources", "https://management.azure.com/subscriptions/6e6e25b…842e524b/resourceGroups/cloudsvcrg/moveResources"); 
+            actions[2].requestBody = '{"targetResourceGroup": "(string)","resources": ["(string)"]}';
+            actions[3] = new Action("POST", "validateMoveResources", "https://management.azure.com/subscriptions/6e6e25b…842e524b/resourceGroups/cloudsvcrg/validateMoveResources"); 
+            actions[3].requestBody = '{"targetResourceGroup": "(string)","resources": ["(string)"]}';
 
             let value = {} as ISelectHandlerReturn;
             value.httpMethod = "GET";
@@ -125,7 +128,7 @@
         }
 
         function scriptWebApps() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET", "CREATE"];
             resourceDefinition.apiVersion = "2014-03-01";
             resourceDefinition.children = "{name}";
@@ -150,7 +153,7 @@
         }
 
         function scriptWebApp() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET", "DELETE", "PUT", "CREATE"];
             resourceDefinition.apiVersion = "2016-03-01";
             resourceDefinition.children = "{name}";
@@ -176,13 +179,13 @@
         }
 
         function scriptGenericResource() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET", "PUT", "DELETE"];
             resourceDefinition.apiVersion = "2016-04-01";
             resourceDefinition.children = ["slots"];
 
-            let actions = [] as IAction[];
-            actions[0] = { httpMethod: "DELETE", name: "Delete", url: "https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cloudsvcrg/providers/Microsoft.ClassicCompute/domainNames/x123cloudsvc", query: undefined, requestBody: undefined };
+            let actions = [] as Action[];
+            actions[0] = new Action("DELETE", "Delete", "https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cloudsvcrg/providers/Microsoft.ClassicCompute/domainNames/x123cloudsvc");
 
             let value = {} as ISelectHandlerReturn;
             value.httpMethod = "GET";
@@ -203,7 +206,7 @@
         }
 
         function scriptSubscriptionLocations() {
-            let resourceDefinition = {} as IResourceDefinition;
+            let resourceDefinition = {} as ResourceDefinition;
             resourceDefinition.actions = ["GET"];
             resourceDefinition.apiVersion = "2014-04-01";
 
