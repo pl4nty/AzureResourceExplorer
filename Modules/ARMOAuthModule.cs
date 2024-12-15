@@ -179,11 +179,11 @@ namespace ARMExplorer.Modules
 
             if (request.Url.Scheme != "https")
             {
-                response.Redirect(String.Format("https://{0}{1}", request.Url.Authority, request.Url.PathAndQuery), endResponse: true);
+                response.Redirect(String.Format("https://{0}{1}", request.Host.Value, request.GetEncodedPathAndQuery()), endResponse: true);
                 return;
             }
 
-            if (request.Url.PathAndQuery.StartsWith("/logout", StringComparison.OrdinalIgnoreCase))
+            if (request.GetEncodedPathAndQuery().StartsWith("/logout", StringComparison.OrdinalIgnoreCase))
             {
                 RemoveSessionCookie(application);
 
@@ -273,7 +273,7 @@ namespace ARMExplorer.Modules
             strb.AppendFormat("&nonce={0}", WebUtility.UrlEncode(nonce));
             strb.AppendFormat("&site_id={0}", WebUtility.UrlEncode(site_id));
             strb.AppendFormat("&response_mode={0}", WebUtility.UrlEncode(response_mode));
-            strb.AppendFormat("&state={0}", WebUtility.UrlEncode(state ?? request.Url.PathAndQuery));
+            strb.AppendFormat("&state={0}", WebUtility.UrlEncode(state ?? request.GetEncodedPathAndQuery()));
 
             return strb.ToString();
         }
@@ -328,9 +328,9 @@ namespace ARMExplorer.Modules
             tenantId = null;
 
             var request = application.Request;
-            if (request.Url.PathAndQuery.StartsWith("/api/tenants", StringComparison.OrdinalIgnoreCase))
+            if (request.GetEncodedPathAndQuery().StartsWith("/api/tenants", StringComparison.OrdinalIgnoreCase))
             {
-                var parts = request.Url.PathAndQuery.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = request.GetEncodedPathAndQuery().Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length >= 3)
                 {
                     tenantId = parts[2];

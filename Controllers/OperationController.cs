@@ -11,14 +11,15 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http;
 using ARMExplorer.SwaggerParser;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ARMExplorer.Controllers
 {
     [UnhandledExceptionFilter]
-    public class OperationController : ApiController
+    public class OperationController : ControllerBase
     {
         private readonly IArmRepository _armRepository;
         private static readonly MemoryCache SwaggerCache = new MemoryCache("SwaggerDefinitionCache");

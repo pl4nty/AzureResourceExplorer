@@ -1,4 +1,3 @@
-using System.Web.Http;
 using ARMExplorer.Controllers;
 
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(ARMExplorer.App_Start.NinjectWebCommon), "Start")]
