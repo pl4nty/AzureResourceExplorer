@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens;
-using System.Net;
+using Microsoft.IdentityModel.Tokens;
+using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Security.Cryptography.X509Certificates;
@@ -113,10 +113,10 @@ namespace ARMExplorer.Modules
 
         public static OpenIdConfiguration Download(string url)
         {
-            var request = WebRequest.Create(url);
-            using (var response = request.GetResponse())
+            using (var client = new HttpClient())
             {
-                return (OpenIdConfiguration)_serializer.ReadObject(response.GetResponseStream());
+                var responseStream = client.GetStreamAsync(url).Result;
+                return (OpenIdConfiguration)_serializer.ReadObject(responseStream);
             }
         }
 
@@ -151,10 +151,10 @@ namespace ARMExplorer.Modules
 
         public static OpenIdIssuerKeys Download(string url)
         {
-            var request = WebRequest.Create(url);
-            using (var response = request.GetResponse())
+            using (var client = new HttpClient())
             {
-                return (OpenIdIssuerKeys)_serializer.ReadObject(response.GetResponseStream());
+                var responseStream = client.GetStreamAsync(url).Result;
+                return (OpenIdIssuerKeys)_serializer.ReadObject(responseStream);
             }
         }
     }
@@ -184,7 +184,6 @@ namespace ARMExplorer.Modules
                 foreach (string rawData in this.X509RawData)
                 {
                     var cer = new X509Certificate2(Convert.FromBase64String(rawData));
-                    list.Add(new X509SecurityToken(cer));
                 }
 
                 _securityTokens = list.ToArray();

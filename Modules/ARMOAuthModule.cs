@@ -4,10 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IdentityModel;
-using System.IdentityModel.Selectors;
-using System.IdentityModel.Services;
-using System.IdentityModel.Tokens;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -27,10 +25,8 @@ namespace ARMExplorer.Modules
         public const string DeleteCookieFormat = "{0}=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         public const int CookieChunkSize = 2000;
 
-        public static readonly CookieTransform[] DefaultCookieTransforms = new CookieTransform[]
+        public static readonly string[] DefaultCookieTransforms = new string[]
         {
-            new DeflateCookieTransform(),
-            new MachineKeyTransform()
         };
 
         public static string AADClientId
@@ -179,11 +175,11 @@ namespace ARMExplorer.Modules
 
             if (request.Url.Scheme != "https")
             {
-                response.Redirect(String.Format("https://{0}{1}", request.Host.Value, request.GetEncodedPathAndQuery()), endResponse: true);
+                response.Redirect(String.Format("https://{0}{1}", request.Url.Host, request.Url.PathAndQuery), endResponse: true);
                 return;
             }
 
-            if (request.GetEncodedPathAndQuery().StartsWith("/logout", StringComparison.OrdinalIgnoreCase))
+            if (request.Url.PathAndQuery.StartsWith("/logout", StringComparison.OrdinalIgnoreCase))
             {
                 RemoveSessionCookie(application);
 
@@ -273,7 +269,7 @@ namespace ARMExplorer.Modules
             strb.AppendFormat("&nonce={0}", WebUtility.UrlEncode(nonce));
             strb.AppendFormat("&site_id={0}", WebUtility.UrlEncode(site_id));
             strb.AppendFormat("&response_mode={0}", WebUtility.UrlEncode(response_mode));
-            strb.AppendFormat("&state={0}", WebUtility.UrlEncode(state ?? request.GetEncodedPathAndQuery()));
+            strb.AppendFormat("&state={0}", WebUtility.UrlEncode(state ?? request.Url.PathAndQuery));
 
             return strb.ToString();
         }
@@ -294,15 +290,14 @@ namespace ARMExplorer.Modules
         public static ClaimsPrincipal AuthenticateIdToken(HttpApplication application, string id_token)
         {
             var config = OpenIdConfiguration.Current;
-            var handler = new JwtSecurityTokenHandler();
-            handler.CertificateValidator = X509CertificateValidator.None;
+            var handler = new JsonWebTokenHandler();
             if (!handler.CanReadToken(id_token))
             {
                 throw new InvalidOperationException("No SecurityTokenHandler can authenticate this id_token!");
             }
 
             var parameters = new TokenValidationParameters();
-            parameters.AllowedAudience = AADClientId;
+            parameters.ValidAudience = AADClientId;
             // this is just for Saml
             // paramaters.AudienceUriMode = AudienceUriMode.Always;
             parameters.ValidateIssuer = false;
@@ -312,10 +307,10 @@ namespace ARMExplorer.Modules
             {
                 tokens.AddRange(key.GetSecurityTokens());
             }
-            parameters.SigningTokens = tokens;
+            parameters.IssuerSigningKeys = (IEnumerable<SecurityKey>)tokens;
 
             // validate
-            var principal = (ClaimsPrincipal)handler.ValidateToken(id_token, parameters);
+            var principal = (ClaimsPrincipal)handler.ValidateToken(id_token, parameters).Claims;
 
             // verify nonce
             VerifyNonce(principal.FindFirst(NonceClaimType).Value);
@@ -328,9 +323,9 @@ namespace ARMExplorer.Modules
             tenantId = null;
 
             var request = application.Request;
-            if (request.GetEncodedPathAndQuery().StartsWith("/api/tenants", StringComparison.OrdinalIgnoreCase))
+            if (request.Url.PathAndQuery.StartsWith("/api/tenants", StringComparison.OrdinalIgnoreCase))
             {
-                var parts = request.GetEncodedPathAndQuery().Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = request.Url.PathAndQuery.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length >= 3)
                 {
                     tenantId = parts[2];
@@ -345,7 +340,6 @@ namespace ARMExplorer.Modules
             var bytes = token.ToBytes();
             for (int i = 0; i < DefaultCookieTransforms.Length; ++i)
             {
-                bytes = DefaultCookieTransforms[i].Encode(bytes);
             }
             return bytes;
         }
@@ -356,7 +350,6 @@ namespace ARMExplorer.Modules
             {
                 for (int i = DefaultCookieTransforms.Length - 1; i >= 0; --i)
                 {
-                    bytes = DefaultCookieTransforms[i].Decode(bytes);
                 }
                 return AADOAuth2AccessToken.FromBytes(bytes);
             }
