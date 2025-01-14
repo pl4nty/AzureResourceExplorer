@@ -8,13 +8,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Routing;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ARMExplorer.Controllers
 {
-    public class ARMController : ApiController
+    public class ARMController : ControllerBase
     {
         private const char base64Character62 = '+';
         private const char base64Character63 = '/';
