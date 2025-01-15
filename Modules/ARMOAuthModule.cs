@@ -6,8 +6,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel;
 using System.IdentityModel.Selectors;
-using System.IdentityModel.Services;
 using System.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -27,10 +28,10 @@ namespace ARMExplorer.Modules
         public const string DeleteCookieFormat = "{0}=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         public const int CookieChunkSize = 2000;
 
-        public static readonly CookieTransform[] DefaultCookieTransforms = new CookieTransform[]
+        public static readonly string[] DefaultCookieTransforms = new string[]
         {
-            new DeflateCookieTransform(),
-            new MachineKeyTransform()
+            // new DeflateCookieTransform(),
+            // new MachineKeyTransform()
         };
 
         public static string AADClientId
@@ -307,7 +308,7 @@ namespace ARMExplorer.Modules
             // paramaters.AudienceUriMode = AudienceUriMode.Always;
             parameters.ValidateIssuer = false;
 
-            var tokens = new List<SecurityToken>();
+            var tokens = new List<System.IdentityModel.Tokens.SecurityToken>();
             foreach (var key in config.IssuerKeys.Keys)
             {
                 tokens.AddRange(key.GetSecurityTokens());

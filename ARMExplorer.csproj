@@ -42,14 +42,10 @@
     <TypeScriptSourceRoot />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.IdentityModel" />
-    <Reference Include="System.identitymodel.services" />
     <Reference Include="System.IdentityModel.Tokens.Jwt, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>ref\System.IdentityModel.Tokens.Jwt.dll</HintPath>
     </Reference>
-    <Reference Include="System.Net" />
-    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\HydraSpecs\*.dll" />
@@ -149,33 +145,27 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters" Version="1.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters.CoreServices" Version="1.4.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.3.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
     <PackageReference Include="System.Runtime.Caching" Version="9.0.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="8.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.5.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.5.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Web" Version="2.5.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.Web.TelemetryChannel" Version="0.17.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.5.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.5.1" />
-    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.3" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.3" />
-    <PackageReference Include="Microsoft.Bcl" Version="1.1.10" />
-    <PackageReference Include="Microsoft.Bcl.Build" Version="1.0.21" />
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.25" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.6.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.6.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.6.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.6.1" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="2.3.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="Ninject" Version="3.2.0.0" />
-    <PackageReference Include="Ninject.Web.Common" Version="3.2.0.0" />
-    <PackageReference Include="Ninject.Web.WebApi" Version="3.2.4.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Ninject" Version="3.3.3" />
+    <PackageReference Include="Ninject.Web.Common" Version="3.3.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
-    <PackageReference Include="WebActivatorEx" Version="2.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Tests\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs" />
