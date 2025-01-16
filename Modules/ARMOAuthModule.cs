@@ -177,12 +177,6 @@ namespace ARMExplorer.Modules
 
             response.Headers["Strict-Transport-Security"] = "max-age=0";
 
-            if (request.Url.Scheme != "https")
-            {
-                response.Redirect(String.Format("https://{0}{1}", request.Url.Authority, request.Url.PathAndQuery), endResponse: true);
-                return;
-            }
-
             if (request.Url.PathAndQuery.StartsWith("/logout", StringComparison.OrdinalIgnoreCase))
             {
                 RemoveSessionCookie(application);

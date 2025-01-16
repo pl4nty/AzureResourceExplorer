@@ -172,6 +172,7 @@
     <Content Include="Images\ARMExplorer.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ng\manage.js" />
     <Content Include="ng\manage2.js" />
     <Content Include="applicationHost.xdt" />
     <Content Include="packages.config" />
