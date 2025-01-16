@@ -11,7 +11,7 @@ namespace ARMExplorer.Controllers
         public const string X_MS_OAUTH_TOKEN = "X-MS-OAUTH-TOKEN";
         public const string X_MS_Ellapsed = "X-MS-Ellapsed";
         public const string AntaresApiVersion = "2014-06-01";
-        public const string CSMApiVersion = "2014-04-01";
+        public const string CSMApiVersion = "2022-12-01";
 
         public const string ResourcesTemplate = "{0}/subscriptions/{1}/resources?api-version={2}";
         public const string SubscriptionTemplate = "{0}/subscriptions/{1}?api-version={2}";
