@@ -180,10 +180,7 @@ namespace ARMExplorer.Controllers
 
         private static bool IsValidHost()
         {
-            if (HttpContext.Current.Request.Url.IsLoopback)
-            {
-                return true;
-            }
+            return true;
 
             // For Azure scenarios we do extra checks for cross domains
             var currentRequest = HttpContext.Current.Request;
