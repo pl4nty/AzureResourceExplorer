@@ -66,8 +66,8 @@
                             {{item.name}}<small>({{item.type}})</small>
                         </li>
                     </ul>
+                    <select class="form-control" ng-model="selectedTenant" ng-options="tenant.name for tenant in tenants" ng-change="tenantSelect()"></select>
                 </form>
-                <select ng-model="selectedTenant" ng-options="tenant.name for tenant in tenants" style="position: relative; top: 15px; float: left" ng-change="tenantSelect()"></select>
                 <div class="switch">
                     <input type="radio" class="switch-input" name="view" id="readOnly" ng-checked="readOnlyMode" ng-click="setReadOnlyMode(true)">
                     <label for="readOnly" class="switch-label switch-label-off">Read Only</label>
