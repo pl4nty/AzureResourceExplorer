@@ -1,5 +1,8 @@
 [CmdletBinding()]
-param()
+param(
+  [Parameter()]
+  [string]$Filter
+)
 # Define source and destination roots
 $sourceRoot = "../azure-rest-api-specs/specification"
 $destinationRoot = "App_Data/SwaggerSpecs"
@@ -7,7 +10,7 @@ $destinationRoot = "App_Data/SwaggerSpecs"
 Copy-Item $sourceRoot/common-types/resource-management $destinationRoot/common-types -Recurse -Force
 
 # Get all shortname directories
-$shortnames = Get-ChildItem -Path $sourceRoot -Directory
+$shortnames = Get-ChildItem -Path $sourceRoot -Directory -Filter $Filter
 
 foreach ($shortname in $shortnames) {
   # Access the resource-manager folder
@@ -40,24 +43,32 @@ foreach ($shortname in $shortnames) {
   }
     
   foreach ($provider in $providers) {
-    # Get all stable version directories for the provider
-    if (Test-Path -Path "$($provider.FullName)/stable") {
-      $versions = Get-ChildItem -Path "$($provider.FullName)/stable" -Directory
+    $versions = @()
+    # Get all version directories for the provider
+    if ($stable = Test-Path -Path "$($provider.FullName)/stable") {
+      $versions += Get-ChildItem -Path "$($provider.FullName)/stable" -Directory
     }
-    elseif (Test-Path -Path "$($provider.FullName)/preview") {
-      $versions = Get-ChildItem -Path "$($provider.FullName)/preview" -Directory
+    if ($preview = Test-Path -Path "$($provider.FullName)/preview") {
+      $versions += Get-ChildItem -Path "$($provider.FullName)/preview" -Directory
     }
-    elseif (Test-Path -Path "$($provider.Parent)/stable") {
-      $versions = Get-ChildItem -Path "$($provider.Parent)/stable" -Directory
-    }
-    elseif (($secondLevelProvider = Get-ChildItem -Path $provider -Directory -Exclude common-types, preview, stable).Count -gt 0) {
-      $providers = @($providers; $secondLevelProvider)
-      Write-Verbose "$($secondLevelProvider.Count) second level provider directories found for $($provider.FullName)"
-      continue
-    }
-    else {
-      Write-Warning "Skipping $($provider.FullName): Neither stable nor preview versions found"
-      continue
+    if (!$stable -and !$preview) {
+      if ($stable = Test-Path -Path "$($provider.Parent)/stable") {
+        $versions += Get-ChildItem -Path "$($provider.Parent)/stable" -Directory
+      }
+      if ($preview = Test-Path -Path "$($provider.Parent)/preview") {
+        $versions += Get-ChildItem -Path "$($provider.Parent)/preview" -Directory
+      }
+      if (!$stable -and !$preview) {
+        if (($secondLevelProvider = Get-ChildItem -Path $provider -Directory -Exclude common-types, preview, stable).Count -gt 0) {
+          $providers = @($providers; $secondLevelProvider)
+          Write-Verbose "$($secondLevelProvider.Count) second level provider directories found for $($provider.FullName)"
+          continue
+        }
+        else {
+          Write-Warning "Skipping $($provider.FullName): Neither stable nor preview versions found"
+          continue
+        }
+      }
     }
 
     # Determine the latest version based on the directory name date
