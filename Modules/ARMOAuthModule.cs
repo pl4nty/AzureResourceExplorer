@@ -192,6 +192,10 @@ namespace ARMExplorer.Modules
 
                 var base_uri = request.Url.GetLeftPart(UriPartial.Authority);
                 var redirect_uri = base_uri + "/manage";
+                if (!application.Request.Url.IsLoopback)
+                {
+                    redirect_uri = redirect_uri.Replace("http://", "https://");
+                }
                 var token = AADOAuth2AccessToken.GetAccessTokenByCode(tenantIdClaim.Value, code, redirect_uri);
                 WriteOAuthTokenCookie(application, token);
                 response.Redirect(base_uri + state, endResponse: true);
@@ -234,6 +238,10 @@ namespace ARMExplorer.Modules
             var response_type = "id_token code";
             var issuerAddress = config.GetAuthorizationEndpoint(tenantId);
             var redirect_uri = request.Url.GetLeftPart(UriPartial.Authority) + "/manage";
+            if (!application.Request.Url.IsLoopback)
+            {
+                redirect_uri = redirect_uri.Replace("http://", "https://");
+            }
             var client_id = AADClientId;
             var nonce = GenerateNonce();
             var response_mode = "form_post";
