@@ -167,7 +167,6 @@
   <ItemGroup>
     <Content Include="App_Data\HydraSpecs\*.dll" />
     <Content Include="App_Data\providernames.txt" />
-    <Content Include="Content\Scripts\ui-ace.min.js" />
     <Content Include="Content\Styles\app2.css" />
     <Content Include="Images\ARMExplorer.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -455,7 +454,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Scripts\abn_tree_directive.js" />
-    <Content Include="Content\Scripts\rx.angular.js" />
     <Content Include="Content\Styles\abn_tree.css" />
     <Content Include="Content\Styles\app.css" />
     <Content Include="Content\Styles\sb-admin-2.css" />
