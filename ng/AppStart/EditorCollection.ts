@@ -9,14 +9,14 @@ class EditorCollection {
         this.editors[Editor.ResponseEditor] = ace.edit("response-json-editor");
         this.editors[Editor.RequestEditor] = ace.edit("request-json-editor");
         this.editors[Editor.CreateEditor] = ace.edit("json-create-editor");
+        this.editors[Editor.PowershellEditor] = ace.edit("powershell-editor");
+        this.editors[Editor.AzureCliEditor] = ace.edit("azurecli-editor");
         this.editors[Editor.AnsibleEditor] = ace.edit("ansible-editor");
-        this.editors.length = 4;
-//        this.editors[Editor.PowershellEditor] = ace.edit("powershell-editor");
-//        this.editors[Editor.AzureCliEditor] = ace.edit("azurecli-editor");
+        this.editors.length = 6;
     }
 
     private isHidden(editor: Editor) {
-        return editor === Editor.AzureCliEditor || editor === Editor.PowershellEditor;
+        return false;
     }
 
     getValue(editor: Editor, cleanObject: boolean): any {
