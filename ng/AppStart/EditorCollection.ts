@@ -131,7 +131,7 @@ class EditorCollection {
         this.setValue(Editor.AnsibleEditor, "# Ansible Playbooks");
 
         this.setMode(Editor.AzureCliEditor, "ace/mode/sh");
-        this.setValue(Editor.AzureCliEditor, "# Azure CLI 2.0 equivalent script");
+        this.setValue(Editor.AzureCliEditor, "# Azure CLI equivalent script");
     }
 
 }

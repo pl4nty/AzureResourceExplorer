@@ -38,11 +38,12 @@
     }
 
     export function getAzureCliScriptsForResource(value: ISelectHandlerReturn) {
-        const parser: ARMUrlParser = new ARMUrlParser(value, []);
-        const resolver: ScriptParametersResolver = new ScriptParametersResolver(parser);
-        const resourceHandlerResolver: ResourceHandlerResolver = new ResourceHandlerResolver(resolver);
-        const scriptGenerator: CliScriptGenerator = new CliScriptGenerator(resolver, resourceHandlerResolver);
-        return scriptGenerator.getScript();
+        var script = "# Azure CLI equivalent script\n\n";
+        let urlParser = new ARMUrlParser(value, []);
+        let parameterResolver = new ScriptParametersResolver(urlParser);
+        let resourceHandlerResolver: ResourceHandlerResolver = new ResourceHandlerResolver(parameterResolver);
+        let scriptGenerator = new CliScriptGenerator(parameterResolver, resourceHandlerResolver);
+        return script + scriptGenerator.getScript();
     }
 
     export function getPowerShellScriptsForResource(value: ISelectHandlerReturn, actions: Action[]): string {
