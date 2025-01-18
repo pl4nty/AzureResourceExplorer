@@ -50,7 +50,7 @@
     <div id="wrapper" ng-controller="treeBodyController" ng-cloak>
         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
             <div class="navbar-header">
-                <a class="navbar-brand" href="/" ng-click="refresh()"><img src="/Images/ARMExplorer.svg" style="height: 25px; padding-bottom: 1px; padding-top: 1px; padding-right: 7px">Azure Resource Explorer (Preview)</a>
+                <a class="navbar-brand" href="/" ng-click="refresh()"><img src="/Images/ARMExplorer.svg" style="height: 25px; padding-bottom: 1px; padding-top: 1px; padding-right: 7px">Azure Resource Explorer by @pl4nty</a>
                 <form class="navbar-form navbar-left" role="search" ng-submit="resourceSearch()">
                     <div class="input-group">
                         <input id="resource-search-input" type="text" class="form-control" placeholder="Search" ng-model="resourceSearcher.resourceSearchModel.searchKeyword" ng-keyup="delayResourceSearch($event)">
@@ -80,7 +80,7 @@
                         <img ng-src="{{user.imageUrl}}" style="height: 50px; padding-top: 1px" />
                         <a href="#" data-toggle="dropdown" style="display: inline"> {{ user.name }} {{ user.email }} </a>
                         <ul class="dropdown-menu">
-                            <li><a target="_blank" href="https://github.com/projectkudu/ARMExplorer/issues">Give feedback</a></li>
+                            <li><a target="_blank" href="https://github.com/pl4nty/ARMExplorer/issues">Give feedback</a></li>
                             <li><a href="/logout" ng-click="logout()">Logout</a></li>
                         </ul>
                     </li>
