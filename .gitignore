@@ -7,7 +7,6 @@
 deploy
 deploy/*
 *.suo
-*.cache
 *.docstates
 *.dgml
 _ReSharper.*

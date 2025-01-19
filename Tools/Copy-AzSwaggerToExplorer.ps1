@@ -1,3 +1,4 @@
+# TODO automate like https://github.com/projectkudu/AzureResourceExplorer/pull/321
 [CmdletBinding()]
 param(
   [Parameter()]
@@ -7,6 +8,7 @@ param(
 $sourceRoot = "../azure-rest-api-specs/specification"
 $destinationRoot = "App_Data/SwaggerSpecs"
 
+# az rest --url /subscriptions/8e8bbf73-03c1-44da-a079-6db5df3c079d/providers?api-version=2024-08-01 | Set-Content .\App_Data\ProvidersSpecs\ProvidersList.json
 Copy-Item $sourceRoot/common-types/resource-management $destinationRoot/common-types -Recurse -Force
 
 # Get all shortname directories
