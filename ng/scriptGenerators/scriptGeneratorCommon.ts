@@ -78,13 +78,13 @@ function strEnum<T extends string>(strings: Array<Array<T>>): {[K in T]: K} {
 }
 
 const CmdType = strEnum([
-    ["Get", "Get-AzureRmResource"],
-    ["Invoke", "Invoke-AzureRmResourceAction"],
-    ["InvokeAction", "Invoke-AzureRmResourceAction"],
-    ["Set", "Set-AzureRmResource"],
-    ["New", "New-AzureRmResource"],
-    ["RemoveAction", "Remove-AzureRmResource"],
-    ["NewResourceGroup", "New-AzureRmResourceGroup"]
+    ["Get", "Get-AzResource"],
+    ["Invoke", "Invoke-AzResourceAction"],
+    ["InvokeAction", "Invoke-AzResourceAction"],
+    ["Set", "Set-AzResource"],
+    ["New", "New-AzResource"],
+    ["RemoveAction", "Remove-AzResource"],
+    ["NewResourceGroup", "New-AzResourceGroup"]
 ]);
 
 type CmdType = keyof typeof CmdType;

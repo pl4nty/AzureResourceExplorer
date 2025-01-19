@@ -18,7 +18,7 @@
             switch (cmdActionPair.cmd) {
                 case CmdType.Get: {
                     currentScript += '    - name: GET ' + this.resolver.getActionName() + '\n';
-                    currentScript += '      azure_rm_resource_facts:\n';
+                    currentScript += '      azure_rm_resource_info:\n';
                     currentScript += this.yamlFromResourceId(cmdActionPair, "        ");
                     break;
                 }
